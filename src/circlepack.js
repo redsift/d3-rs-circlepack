@@ -126,6 +126,9 @@ export default function sankeyChart(id) {
         center = tree;
       }
 
+      let group = g.selectAll('g').data(computed);
+      group.enter().append('circle')
+
       let circle = g.selectAll('circle').data(computed);
 
       // background select call catch          
