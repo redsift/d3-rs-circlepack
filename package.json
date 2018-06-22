@@ -34,7 +34,6 @@
     "@redsift/d3-rs-theme": "~0.4.2",
     "@redsift/d3-rs-tip": "^0.6.0",
     "d3-hierarchy": "^1.1.6",
-    "d3-interpolate": "^1.2.0",
     "d3-scale": "^1.0.7",
     "d3-selection": "^1.2.0"
   },

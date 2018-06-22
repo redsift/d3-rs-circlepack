@@ -11,7 +11,7 @@ tape("html() empty state", function(t) {
     t.equal(el.selectAll('svg').size(), 1);
     
     // should have an X and Y major and minor axis
-    t.equal(el.selectAll('g.chart-sankey').size(), 1);
+    t.equal(el.selectAll('g.chart-circlepack').size(), 1);
         
     t.end();
 });

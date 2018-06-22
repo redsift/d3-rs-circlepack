@@ -1,7 +1,6 @@
 
 import { select } from 'd3-selection';
 import { hierarchy, pack } from 'd3-hierarchy';
-import { interpolateZoom } from 'd3-interpolate';
 import { scaleOrdinal } from 'd3-scale';
 
 import { body as tip } from '@redsift/d3-rs-tip';
@@ -71,7 +70,7 @@ export default function sankeyChart(id) {
     selection.each(function() {
       let node = select(this);  
 
-      let her = node.datum();
+      let her = node.datum() || {};
 
       let sh = height || Math.round(width * DEFAULT_ASPECT);
       
