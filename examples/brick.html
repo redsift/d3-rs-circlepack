@@ -806,7 +806,8 @@ var FLARE2 = {
     var circlepack = d3_rs_circlepack.html('flare')
                     .theme(theme)
                     .size(size) // 1. Set size
-                    .tipHtml(d => `<h3>${d.data.name}</h3>`); // 2. Set tooltip
+                    .tipHtml(d => `<h3>${d.data.name}</h3>`) // 2. Set tooltip
+                    .dataId(d => d.name); // 3. Identity function for the data, 'data' is a name for 2 entries in this data set causing flash
                      
 
 

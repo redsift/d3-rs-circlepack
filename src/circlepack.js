@@ -1,7 +1,7 @@
 
 import { select } from 'd3-selection';
 import { hierarchy, pack } from 'd3-hierarchy';
-import { scaleOrdinal } from 'd3-scale';
+import { scaleLinear } from 'd3-scale';
 
 import { body as tip } from '@redsift/d3-rs-tip';
 
@@ -35,7 +35,9 @@ export default function sankeyChart(id) {
       label = null, 
       tipHtml = null,
       animated = false,
-      center = null;
+      center = null,
+      sum = (d) => d.size,
+      dataId = (d, i) => d.id == null ? i : d.id;
   
   let tid = null;
   if (id) tid = 'tip-' + id;
@@ -59,8 +61,8 @@ export default function sankeyChart(id) {
 
     let _circleFill = circleFill;
     if (_circleFill == null) {
-      const color = scaleOrdinal(presentation10.standard);
-      _circleFill = (d) => color(d.depth);
+      const color = scaleLinear().domain([0, 5]).range([ presentation10.standard[presentation10.names.blue], presentation10.standard[presentation10.names.yellow] ]);
+      _circleFill = (d) => color(d.depth % 5);
     } else if (typeof(_circleFill) !== 'function') {
       _circleFill = () => circleFill;
     }
@@ -117,7 +119,7 @@ export default function sankeyChart(id) {
 
       let packed = pack().size([w, h]).padding(padding);
       let tree = hierarchy(her)
-                  .sum(d => d.size)
+                  .sum(sum)
                   .sort((a, b) =>  b.value - a.value);
 
       let computed = packed(tree).descendants();
@@ -129,7 +131,7 @@ export default function sankeyChart(id) {
       let group = g.selectAll('g').data(computed);
       group.enter().append('circle')
 
-      let circle = g.selectAll('circle').data(computed);
+      let circle = g.selectAll('circle').data(computed, (d, i) => dataId(d.data, i));
 
       // background select call catch          
       snode.select('rect.background').on('click', () => {
@@ -137,17 +139,15 @@ export default function sankeyChart(id) {
           onClick(null);
         }
       });
+      
+      let k = w / (center.r*2);
 
       // Enter any new nodes at the parent's previous position.
       let circleEnter = circle.enter().append('circle')
-          .attr('class',  d => d.parent ? d.children ? 'node node--middle' : 'node node--leaf' : 'node node--root')
-          .attr('fill-opacity', 1.0)
-          .style('fill',  _circleFill)
-          .on('click', (d) => {
-            if (onClick) {
-              onClick(d);
-            }
-          });
+          .attr('fill-opacity', 0.0)
+          .attr('r',  d => d.r * k)
+          .attr('transform',  d => 'translate(' + (d.x - center.x) * k + ',' + (d.y - center.y) * k + ')');
+
 
       let circleUpdate = circleEnter.merge(circle);
 
@@ -157,16 +157,23 @@ export default function sankeyChart(id) {
       })
       .on('mouseout', function () {
         rtip.hide.apply(this);
+      })
+      .on('click', (d) => {
+        if (onClick) {
+          onClick(d);
+        }
       });
 
       if (transition === true) {
         circleUpdate = circleUpdate.transition(context);
       }
-
-      let k = w / (center.r*2);
       
       circleUpdate.attr('r',  d => d.r * k)
-                  .attr('transform',  d => 'translate(' + (d.x - center.x) * k + ',' + (d.y - center.y) * k + ')');
+        .attr('class',  d => d.parent ? d.children ? 'node node--middle' : 'node node--leaf' : 'node node--root')
+        .attr('transform',  d => 'translate(' + (d.x - center.x) * k + ',' + (d.y - center.y) * k + ')')
+        .attr('fill-opacity', 1.0)
+        .attr('fill',  _circleFill);          
+
 
       let circleExit = circle.exit();
       if (transition === true) {
@@ -205,10 +212,11 @@ export default function sankeyChart(id) {
                     stroke:${display[_theme].axis};
                     stroke-width: ${widths.axis};
                   }
-                  ${_impl.self()} .label,
-                  ${_impl.self()} .node--root,
-                  ${_impl.self()} .node--leaf {
+                  ${_impl.self()} .label {
                     pointer-events: none;
+                  }
+                  ${_impl.self()} circle.node {
+                    pointer-events: all;
                   }
                 `;
   
@@ -280,6 +288,13 @@ export default function sankeyChart(id) {
     return arguments.length ? (animated = value, _impl) : animated;
   };  
   
+  _impl.sum = function(value) {
+    return arguments.length ? (sum = value, _impl) : sum;
+  };  
+  
+  _impl.dataId = function(value) {
+    return arguments.length ? (dataId = value, _impl) : dataId;
+  };  
 
   return _impl;
 }
