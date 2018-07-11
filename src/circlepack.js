@@ -108,6 +108,8 @@ export default function sankeyChart(id) {
       let g = elmS.select(_impl.self())
       if (g.empty()) {
         g = elmS.append('g').attr('class', classed).attr('id', id);
+        g.append('g').attr('class', 'circles');
+        g.append('g').attr('class', 'labels');
       }
 
       // -- start
@@ -128,17 +130,14 @@ export default function sankeyChart(id) {
         center = tree;
       }
 
-      let group = g.selectAll('g').data(computed);
-      group.enter().append('circle')
-
-      let circle = g.selectAll('circle').data(computed, (d, i) => dataId(d.data, i));
-
       // background select call catch          
       snode.select('rect.background').on('click', () => {
         if (onClick) {
           onClick(null);
         }
       });
+
+      let circle = g.select('g.circles').selectAll('circle').data(computed, (d, i) => dataId(d.data, i));
       
       let k = w / (center.r*2);
 
@@ -147,7 +146,6 @@ export default function sankeyChart(id) {
           .attr('fill-opacity', 0.0)
           .attr('r',  d => d.r * k)
           .attr('transform',  d => 'translate(' + (d.x - center.x) * k + ',' + (d.y - center.y) * k + ')');
-
 
       let circleUpdate = circleEnter.merge(circle);
 
@@ -184,6 +182,33 @@ export default function sankeyChart(id) {
           .attr('fill-opacity', 0.0)
           .remove();
     
+
+      let label = g.select('g.labels').selectAll('text').data(computed, (d, i) => dataId(d.data, i));
+
+      let labelEnter = label.enter().append('text')
+        .attr('transform',  d => 'translate(' + (d.x - center.x) * k + ',' + (d.y - center.y) * k + ')')
+        .attr('fill-opacity', 0.0);
+
+      let labelUpdate = labelEnter.merge(label);
+      labelUpdate.text(d => d.data.name); //todo: param
+
+      if (transition === true) {
+        labelUpdate = labelUpdate.transition(context);
+      }
+
+      labelUpdate.attr('fill-opacity', d => d.parent == center || (d.parent && center && d.parent.data == center.data) ? 1.0 : 0.0)
+          .attr('transform',  d => 'translate(' + (d.x - center.x) * k + ',' + (d.y - center.y) * k + ')')
+          .attr('fill', () => display[theme].text); //todo: param
+
+      let labelExit = label.exit();
+        if (transition === true) {
+          labelExit = labelExit.transition(context);
+        }
+  
+      labelExit
+          .attr('fill-opacity', 0.0)
+          .remove();
+
       rtip.hide();
 
     });
@@ -194,26 +219,22 @@ export default function sankeyChart(id) {
   _impl.id = function() {
     return id;
   };
-
+//TODO: model for text shadow based on theme
   _impl.defaultStyle = (_theme, _width) => `
                   ${_impl.importFonts() ? fonts.variable.cssImport : ''}  
                   ${_impl.self()} { 
                     font-size: ${fonts.variable.sizeForWidth(_width)};
                   }
-                  ${_impl.self()} text.default { 
+                  ${_impl.self()} .labels text { 
                     font-family: ${fonts.variable.family};
-                    font-weight: ${fonts.variable.weightColor};  
-                    fill: ${display[_theme].text}                
-                  }
-                  ${_impl.self()} text::selection {
-                    fill-opacity: 1.0; 
+                    font-weight: ${fonts.variable.weightColor};    
+                    text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, -1px 0 0 #fff, 0 -1px 0 #fff;
+                    text-anchor: middle;    
+                    pointer-events: none;    
                   }
                   ${_impl.self()} circle.node:hover {
                     stroke:${display[_theme].axis};
                     stroke-width: ${widths.axis};
-                  }
-                  ${_impl.self()} .label {
-                    pointer-events: none;
                   }
                   ${_impl.self()} circle.node {
                     pointer-events: all;
