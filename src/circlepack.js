@@ -126,8 +126,14 @@ export default function sankeyChart(id) {
 
       let computed = packed(tree).descendants();
 
-      if (center == null) {
-        center = tree;
+      let _center = center;
+      if (_center == null) {
+        _center = tree;
+      }
+
+      let forceLabel = false;
+      if (_center.children == null || _center.children.length == 0) {
+        forceLabel = true;
       }
 
       // background select call catch          
@@ -139,13 +145,13 @@ export default function sankeyChart(id) {
 
       let circle = g.select('g.circles').selectAll('circle').data(computed, (d, i) => dataId(d.data, i));
       
-      let k = w / (center.r*2);
+      let k = w / (_center.r*2);
 
       // Enter any new nodes at the parent's previous position.
       let circleEnter = circle.enter().append('circle')
           .attr('fill-opacity', 0.0)
           .attr('r',  d => d.r * k)
-          .attr('transform',  d => 'translate(' + (d.x - center.x) * k + ',' + (d.y - center.y) * k + ')');
+          .attr('transform',  d => 'translate(' + (d.x - _center.x) * k + ',' + (d.y - _center.y) * k + ')');
 
       let circleUpdate = circleEnter.merge(circle);
 
@@ -168,7 +174,7 @@ export default function sankeyChart(id) {
       
       circleUpdate.attr('r',  d => d.r * k)
         .attr('class',  d => d.parent ? d.children ? 'node node--middle' : 'node node--leaf' : 'node node--root')
-        .attr('transform',  d => 'translate(' + (d.x - center.x) * k + ',' + (d.y - center.y) * k + ')')
+        .attr('transform',  d => 'translate(' + (d.x - _center.x) * k + ',' + (d.y - _center.y) * k + ')')
         .attr('fill-opacity', 1.0)
         .attr('fill',  _circleFill);          
 
@@ -186,7 +192,7 @@ export default function sankeyChart(id) {
       let label = g.select('g.labels').selectAll('text').data(computed, (d, i) => dataId(d.data, i));
 
       let labelEnter = label.enter().append('text')
-        .attr('transform',  d => 'translate(' + (d.x - center.x) * k + ',' + (d.y - center.y) * k + ')')
+        .attr('transform',  d => 'translate(' + (d.x - _center.x) * k + ',' + (d.y - _center.y) * k + ')')
         .attr('fill-opacity', 0.0);
 
       let labelUpdate = labelEnter.merge(label);
@@ -196,8 +202,8 @@ export default function sankeyChart(id) {
         labelUpdate = labelUpdate.transition(context);
       }
 
-      labelUpdate.attr('fill-opacity', d => d.parent == center || (d.parent && center && d.parent.data == center.data) ? 1.0 : 0.0)
-          .attr('transform',  d => 'translate(' + (d.x - center.x) * k + ',' + (d.y - center.y) * k + ')')
+      labelUpdate.attr('fill-opacity', d => d.parent == _center || (d.parent && d.parent.data == _center.data) || (forceLabel && d.data == _center.data) ? 1.0 : 0.0)
+          .attr('transform',  d => 'translate(' + (d.x - _center.x) * k + ',' + (d.y - _center.y - (d.children && d.children.length > 0 ? d.r / 2 : 0.0)) * k + ')')
           .attr('fill', () => display[theme].text); //todo: param
 
       let labelExit = label.exit();
@@ -229,7 +235,8 @@ export default function sankeyChart(id) {
                     font-family: ${fonts.variable.family};
                     font-weight: ${fonts.variable.weightColor};    
                     text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, -1px 0 0 #fff, 0 -1px 0 #fff;
-                    text-anchor: middle;    
+                    text-anchor: middle;   
+                    dominant-baseline: central; 
                     pointer-events: none;    
                   }
                   ${_impl.self()} circle.node:hover {

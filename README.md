@@ -41,3 +41,6 @@
     ...
 
 ## TODO
+- text outline for other themes
+- text label fn callback
+- text fill fn callback
