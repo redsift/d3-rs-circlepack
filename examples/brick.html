@@ -429,7 +429,7 @@
                     .theme(theme)
                     .size(size) // 1. Set size
                     .tipHtml(d => `<h3>${d.data.name}</h3>`) // 2. Set tooltip
-                    .dataId(d => d.name); // 3. Identity function for the data, 'data' is a name for 2 entries in this data set causing flash
+                    .dataId(d => d ? d.name : ''); // 3. Identity function for the data, 'data' is a name for 2 entries in this data set causing flash
                      
 
 

@@ -202,7 +202,13 @@ export default function sankeyChart(id) {
         labelUpdate = labelUpdate.transition(context);
       }
 
-      labelUpdate.attr('fill-opacity', d => d.parent == _center || (d.parent && d.parent.data == _center.data) || (forceLabel && d.data == _center.data) ? 1.0 : 0.0)
+      const isData = (a, b) => a != null && b != null ? dataId(a.data, a.data) == dataId(b.data, b.data): false;
+      
+
+      labelUpdate.attr('fill-opacity', d =>  d.parent == _center || 
+                                            isData(d.parent, _center) || 
+                                            (forceLabel && isData(d, _center)) ? 
+                                            1.0 : 0.0)
           .attr('transform',  d => 'translate(' + (d.x - _center.x) * k + ',' + (d.y - _center.y - (d.children && d.children.length > 0 ? d.r / 2 : 0.0)) * k + ')')
           .attr('fill', () => display[theme].text); //todo: param
 
