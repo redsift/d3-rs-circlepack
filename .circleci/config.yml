@@ -28,7 +28,7 @@ jobs:
 
   push:
     docker:
-      - image: circleci/2.7-jessie-browsers
+      - image: circleci/python:2.7-jessie-browsers
         environment:
           S3_BUCKET: *s3_bucket
           NAME: *pkg     
