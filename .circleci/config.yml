@@ -34,9 +34,9 @@ jobs:
           NAME: *pkg     
     working_directory: ~/build        
     steps:
+      - checkout       
       - attach_workspace:
-          at: ./dist    
-      - checkout            
+          at: ./dist              
       - run:
           name: Install AWSCLI
           command: |
@@ -54,9 +54,9 @@ jobs:
       - image: *default_image
     working_directory: ~/build        
     steps:
+      - checkout       
       - attach_workspace:
-          at: ./dist          
-      - checkout      
+          at: ./dist               
       - run:
           name: Log in to NPM for write access
           command: |
