@@ -8,7 +8,7 @@ jobs:
     docker:
       - image: *default_image
         environment:
-          CIRCLE_TEST_REPORTS: ~/build/junit
+          CIRCLE_TEST_REPORTS: ~/build/
     working_directory: ~/build  
     steps:
       - checkout
