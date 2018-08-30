@@ -205,7 +205,14 @@ export default function sankeyChart(id) {
       const labels = layoutLabel(labelStrategy)
         .size((d, i, g) => {
           // measure the label and add the required padding
-          const textSize = g[i].getElementsByTagName('text')[0].getBBox();
+          const node = g[i].getElementsByTagName('text')[0];
+
+          let textSize = null;
+          if (node.getBBox) {
+            textSize = node.getBBox();
+          } else {
+            textSize = { width: 10, height: 10 }; // TODO: temp hack for JSDOM testing
+          }
           return [textSize.width + labelPadding * 2, textSize.height + labelPadding * 2];
         })
         .position(d => {

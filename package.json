@@ -25,7 +25,7 @@
   "scripts": {
     "clean": "rm -rf dist",
     "pretest": "npm run clean && mkdir dist && json2module package.json > dist/package.js && npm run build",
-    "test": "npm outdated || true && eslint src index.js && tape 'test/**/*-test.js'",
+    "test": "npm outdated || true && eslint src test index.js && tape 'test/**/*-test.js'",
     "build": "npm run umd && node rollup.node",
     "umd": "rollup -c",
     "serve": "npm run umd && npm-run-all --parallel watch browse",

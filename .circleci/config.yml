@@ -7,6 +7,9 @@ jobs:
   build:
     docker:
       - image: *default_image
+        environment:
+          CIRCLE_TEST_REPORTS: /tmp/junit
+    working_directory: /tmp  
     steps:
       - checkout
       - run:
@@ -14,6 +17,10 @@ jobs:
           command: |
             npm install
             npm test
+      - store_artifacts:
+          path: /tmp/dist    
+      - store_test_results:
+          path: /tmp/junit      
   publish:
     docker:
       - image: *default_image
