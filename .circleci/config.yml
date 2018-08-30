@@ -8,7 +8,7 @@ jobs:
     docker:
       - image: *default_image
         environment:
-          CIRCLE_TEST_REPORTS: ~/build
+          CIRCLE_TEST_REPORTS: ./build
     working_directory: ~/build  
     steps:
       - checkout
@@ -16,7 +16,6 @@ jobs:
           name: Build and test
           command: |
             npm install
-            mkdir junit # make the junit dir
             npm test
       - store_artifacts:
           path: ~/build/dist    
