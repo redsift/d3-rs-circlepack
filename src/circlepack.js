@@ -13,7 +13,7 @@ import {
   widths,
 } from '@redsift/d3-rs-theme';
 
-import { layoutTextLabel, layoutGreedy, layoutAnnealing,
+import { layoutTextLabel, layoutGreedy,
   layoutLabel, layoutRemoveOverlaps } from 'd3fc-label-layout';
 
 const DEFAULT_SIZE = 500;
@@ -39,7 +39,11 @@ export default function sankeyChart(id) {
     animated = false,
     center = null,
     sum = (d) => d.size,
-    dataId = (d, i) => d.id == null ? i : d.id;
+    dataId = (d, i) => d.id == null ? i : d.id,
+    decorateLabel = null,
+    labelStrategy = layoutRemoveOverlaps(layoutGreedy()),
+    labelPadding = 4.0,
+    labelValue = (d) => d.data.name;
   
   let tid = null;
   if (id) tid = 'tip-' + id;
@@ -189,49 +193,49 @@ export default function sankeyChart(id) {
       circleExit
         .attr('fill-opacity', 0.0)
         .remove();
-    
-      //TEMP
-      const decorateLabel  = () => console.log('Herhe');   //TODO: property   
-      const labelPadding = 2; //TODO: property
+      
+      const hasChildren = (d) => d.children != null &&  d.children.length > 0;
 
       // the component used to render each label
       const textLabel = layoutTextLabel()
         .padding(labelPadding)
-        .value(d => d.data.name); //TODO: property
-
-      // a strategy that combines simulated annealing with removal
-      // of overlapping labels
-      const strategy = layoutRemoveOverlaps(layoutGreedy()); //TODO: remove property
+        .value(labelValue); 
 
       // create the layout that positions the labels
-      const labels = layoutLabel(strategy)
+      const labels = layoutLabel(labelStrategy)
         .size((d, i, g) => {
           // measure the label and add the required padding
           const textSize = g[i].getElementsByTagName('text')[0].getBBox();
           return [textSize.width + labelPadding * 2, textSize.height + labelPadding * 2];
         })
-        .position(d => [(d.x - _center.x) * k, (d.y - _center.y) * k])
+        .position(d => {
+          if (hasChildren(d)) {
+            const r = (d.r - padding / 2.0) * 0.7071067812; // sin(45deg)
+            return [(d.x - _center.x - r) * k, (d.y - _center.y - r) * k];
+          }
+          return [(d.x - _center.x) * k, (d.y - _center.y) * k];
+        })
         .decorate(s => {
           // s.enter().attr('fill-opacity', 0.0);
-          decorateLabel(s);
+
+          if (decorateLabel) decorateLabel(s);
         })
         .component(textLabel);
       
       const isData = (a, b) => a != null && b != null ? dataId(a.data, a.data) == dataId(b.data, b.data): false;
-       
-      const shouldDisplayLabel = d =>  d.parent == _center || 
+
+
+      const shouldDisplayLabel = d => d.parent == _center || 
         isData(d.parent, _center) || 
         (forceLabel && isData(d, _center));
 
       let label = g.select('g.labels').datum(computed.filter(shouldDisplayLabel));
       if (transition === true) {
-        label = label.transition();
+        label = label.transition(context);
       }
       label.call(labels);
 
-      //label.selectAll('g.label').attr('fill-opacity', 1.0);
-
-      /*
+      /* TODO: Data ID is a problem
       let label = g.select('g.labels').selectAll('text').data(computed, (d, i) => dataId(d.data, i));
 
       let labelEnter = label.enter().append('text')
@@ -260,17 +264,15 @@ export default function sankeyChart(id) {
       labelExit
           .attr('fill-opacity', 0.0)
           .remove();
-*/
+      */
       rtip.hide();
 
     });
   }
 
-  _impl.self = function() { return 'g' + (id ?  '#' + id : '.' + classed); };
-
-  _impl.id = function() {
-    return id;
-  };
+  _impl.self = () => `g${id ?  '#' + id : '.' + classed}`;
+  _impl.id = () => id;
+  
   //TODO: model for text shadow based on theme
   _impl.defaultStyle = (_theme, _width) => `
                   ${_impl.importFonts() ? fonts.variable.cssImport : ''}  
@@ -278,7 +280,7 @@ export default function sankeyChart(id) {
                     font-size: ${fonts.variable.sizeForWidth(_width)};
                   }
                   ${_impl.self()} .labels { 
-                    fill: aliceblue;
+                    fill: ${display[_theme].lowlight};
                   }
                   ${_impl.self()} .labels text { 
                     fill: ${display[_theme].text};
@@ -296,81 +298,29 @@ export default function sankeyChart(id) {
                   }
                 `;
   
-  _impl.importFonts = function(value) {
-    return arguments.length ? (importFonts = value, _impl) : importFonts;
-  };
-
-  _impl.classed = function(value) {
-    return arguments.length ? (classed = value, _impl) : classed;
-  };
-    
-  _impl.background = function(value) {
-    return arguments.length ? (background = value, _impl) : background;
-  };
-
-  _impl.theme = function(value) {
-    return arguments.length ? (theme = value, _impl) : theme;
-  };  
-
-  _impl.size = function(value) {
-    return arguments.length ? (width = value, height = null, _impl) : width;
-  };
-    
-  _impl.width = function(value) {
-    return arguments.length ? (width = value, _impl) : width;
-  };  
-
-  _impl.height = function(value) {
-    return arguments.length ? (height = value, _impl) : height;
-  }; 
-
-  _impl.scale = function(value) {
-    return arguments.length ? (scale = value, _impl) : scale;
-  }; 
-
-  _impl.margin = function(value) {
-    return arguments.length ? (margin = value, _impl) : margin;
-  };   
-
-  _impl.style = function(value) {
-    return arguments.length ? (style = value, _impl) : style;
-  }; 
-  
-  _impl.onClick = function(value) {
-    return arguments.length ? (onClick = value, _impl) : onClick;
-  };   
-
-  _impl.padding = function(value) {
-    return arguments.length ? (padding = value, _impl) : padding;
-  }; 
-  
-  _impl.circleFill = function(value) {
-    return arguments.length ? (circleFill = value, _impl) : circleFill;
-  };
-
-  _impl.center = function(value) {
-    return arguments.length ? (center = value, _impl) : center;
-  };
-  
-  _impl.label = function(value) {
-    return arguments.length ? (label = value, _impl) : label;
-  }; 
-
-  _impl.tipHtml = function(value) {
-    return arguments.length ? (tipHtml = value, _impl) : tipHtml;
-  };  
-
-  _impl.animated = function(value) {
-    return arguments.length ? (animated = value, _impl) : animated;
-  };  
-  
-  _impl.sum = function(value) {
-    return arguments.length ? (sum = value, _impl) : sum;
-  };  
-  
-  _impl.dataId = function(value) {
-    return arguments.length ? (dataId = value, _impl) : dataId;
-  };  
+  _impl.importFonts = (value) => arguments.length ? (importFonts = value, _impl) : importFonts;
+  _impl.classed = (value) => arguments.length ? (classed = value, _impl) : classed;
+  _impl.background = (value) => arguments.length ? (background = value, _impl) : background;
+  _impl.theme = (value) => arguments.length ? (theme = value, _impl) : theme;
+  _impl.size = (value) => arguments.length ? (width = value, height = null, _impl) : width;
+  _impl.width = (value) => arguments.length ? (width = value, _impl) : width;
+  _impl.height = (value) => arguments.length ? (height = value, _impl) : height;
+  _impl.scale = (value) => arguments.length ? (scale = value, _impl) : scale;
+  _impl.margin = (value) => arguments.length ? (margin = value, _impl) : margin;
+  _impl.style = (value) => arguments.length ? (style = value, _impl) : style;
+  _impl.onClick = (value) => arguments.length ? (onClick = value, _impl) : onClick;
+  _impl.padding = (value) => arguments.length ? (padding = value, _impl) : padding;
+  _impl.circleFill = (value) => arguments.length ? (circleFill = value, _impl) : circleFill;
+  _impl.center = (value) => arguments.length ? (center = value, _impl) : center;
+  _impl.label = (value) => arguments.length ? (label = value, _impl) : label;
+  _impl.tipHtml = (value) => arguments.length ? (tipHtml = value, _impl) : tipHtml;
+  _impl.animated = (value) => arguments.length ? (animated = value, _impl) : animated;
+  _impl.sum = (value) => arguments.length ? (sum = value, _impl) : sum;
+  _impl.dataId = (value) => arguments.length ? (dataId = value, _impl) : dataId;
+  _impl.decorateLabel = (value) => arguments.length ? (decorateLabel = value, _impl) : decorateLabel;
+  _impl.labelStrategy = (value) => arguments.length ? (labelStrategy = value, _impl) : labelStrategy;
+  _impl.labelPadding = (value) => arguments.length ? (labelPadding = value, _impl) : labelPadding;
+  _impl.labelValue = (value) => arguments.length ? (labelValue = value, _impl) : labelValue;
 
   return _impl;
 }
