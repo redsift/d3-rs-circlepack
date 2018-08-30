@@ -8,8 +8,8 @@ jobs:
     docker:
       - image: *default_image
         environment:
-          CIRCLE_TEST_REPORTS: /tmp/junit
-    working_directory: /tmp  
+          CIRCLE_TEST_REPORTS: ~/build/junit
+    working_directory: ~/build  
     steps:
       - checkout
       - run:
@@ -18,9 +18,9 @@ jobs:
             npm install
             npm test
       - store_artifacts:
-          path: /tmp/dist    
+          path: ~/build/dist    
       - store_test_results:
-          path: /tmp/junit      
+          path: ~/build/junit      
   publish:
     docker:
       - image: *default_image
