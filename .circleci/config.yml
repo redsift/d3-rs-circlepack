@@ -1,6 +1,6 @@
 pkg: &pkg d3-rs-circlepack
 s3: &s3_bucket redsift-static
-image: &default_image circleci/node:10-browsers
+image: &default_image circleci/node:10-node-browsers
 
 version: 2
 jobs:
@@ -33,6 +33,7 @@ jobs:
       - run:
           name: Publish package
           command: |
+            apt install python-pip
             pip install awscli
             echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
             npm publish --access=public            
