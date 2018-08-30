@@ -55,12 +55,15 @@ jobs:
           NAME: *pkg
     working_directory: ~/build        
     steps:
+      - attach_workspace:
+          at: ./dist          
       - checkout      
       - run:
           name: Log in to NPM for write access
           command: |
             echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
-            npm publish --access=public     
+            cat ~/.npmrc
+            ls -la
       - run:
           name: Publish public package
           command: |
@@ -77,4 +80,5 @@ workflows:
             - build
       - publish:
           context: org-global
-         
+          requires:
+            - push         
