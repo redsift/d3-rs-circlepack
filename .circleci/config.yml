@@ -17,10 +17,18 @@ jobs:
           command: |
             npm install
             npm test
+      - run:
+          name: Capture shot
+          command: |
+            npm run browse &
+            sleep 5
+            curl https://raw.githubusercontent.com/ariya/phantomjs/master/examples/rasterize.js -o r.js
+            phantomjs r.js http://localhost:3000/examples/preview.html ./dist/preview.png     
       - persist_to_workspace:
           root: dist
           paths:
-            - "@redsift"   
+            - "@redsift" 
+            - package.js  
       - store_artifacts:
           path: ~/build/dist    
       - store_test_results:
@@ -58,13 +66,9 @@ jobs:
       - attach_workspace:
           at: ./dist               
       - run:
-          name: Log in to NPM for write access
-          command: |
-            echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
-            cat ~/.npmrc
-      - run:
           name: Publish public package
           command: |
+            echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
             npm publish --access=public            
 
 workflows:

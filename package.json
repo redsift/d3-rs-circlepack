@@ -30,7 +30,7 @@
     "umd": "rollup -c",
     "serve": "npm run umd && npm-run-all --parallel watch browse",
     "watch": "onchange src index.js -- npm run umd",
-    "browse": "browser-sync start --server --directory --files \"examples/**/*.html, dist/**/*.js\""
+    "browse": "browser-sync start --server --directory --files \"examples/**/*.html, dist/**/*.js\" --no-notify"
   },
   "dependencies": {
     "@redsift/d3-rs-svg": "^0.6.0",
