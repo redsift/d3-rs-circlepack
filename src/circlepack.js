@@ -14,7 +14,7 @@ import {
 } from '@redsift/d3-rs-theme';
 
 import { layoutTextLabel, layoutGreedy,
-  layoutLabel, layoutRemoveOverlaps } from 'd3fc-label-layout';
+  layoutLabel, layoutRemoveOverlaps } from '@d3fc/d3fc-label-layout';
 
 const DEFAULT_SIZE = 500;
 const DEFAULT_ASPECT = 1.0;

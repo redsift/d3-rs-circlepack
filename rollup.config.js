@@ -7,7 +7,7 @@ import commonjs from 'rollup-plugin-commonjs';
 import * as meta from './package.json';
 
 // Specify modules that should be bundlled in the target umd
-const bundleModules = [ /^d3fc-/, 'bezier-easing' ];
+const bundleModules = [ /^@d3fc/, /^d3fc-/, 'bezier-easing' ];
 
 // List all D3 modules so they can be excluded and mapped to the D3 global variable
 const d3Modules = [
