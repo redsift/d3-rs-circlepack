@@ -6,3 +6,9 @@ export {
 export {
   default as html
 } from './src/circlepack';
+
+
+
+export {
+  default as text
+} from './src/text';

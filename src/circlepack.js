@@ -13,8 +13,15 @@ import {
   widths,
 } from '@redsift/d3-rs-theme';
 
-import { layoutTextLabel, layoutGreedy,
-  layoutLabel, layoutRemoveOverlaps } from '@d3fc/d3fc-label-layout';
+import { 
+  layoutGreedy,
+  layoutLabel, 
+  layoutRemoveOverlaps 
+} from '@d3fc/d3fc-label-layout';
+
+import {
+  default as layoutTextLabel
+} from './text';
 
 const DEFAULT_SIZE = 500;
 const DEFAULT_ASPECT = 1.0;
@@ -223,9 +230,16 @@ export default function sankeyChart(id) {
           return [(d.x - _center.x) * k, (d.y - _center.y) * k];
         })
         .decorate(s => {
-          // s.enter().attr('fill-opacity', 0.0);
+          s.enter().attr('fill-opacity', 0.0);
+          s.exit().attr('fill-opacity', 0.0);
+
+          if (transition === true) {
+            s = s.transition(context);
+          }
+          s.attr('fill-opacity', 0.3);
 
           if (decorateLabel) decorateLabel(s);
+          
         })
         .component(textLabel);
       
@@ -290,10 +304,8 @@ export default function sankeyChart(id) {
                     fill: ${display[_theme].lowlight};
                   }
                   ${_impl.self()} .labels text { 
-                    fill: ${display[_theme].text};
                     font-family: ${fonts.variable.family};
-                    font-weight: ${fonts.variable.weightColor};    
-                    text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, -1px 0 0 #fff, 0 -1px 0 #fff;
+                    font-weight: ${fonts.variable.weightColor};     
                     pointer-events: none;    
                   }
                   ${_impl.self()} circle.node:hover {
@@ -327,6 +339,10 @@ export default function sankeyChart(id) {
   _impl.decorateLabel = (value) => arguments.length ? (decorateLabel = value, _impl) : decorateLabel;
   _impl.labelStrategy = (value) => arguments.length ? (labelStrategy = value, _impl) : labelStrategy;
   _impl.labelPadding = (value) => arguments.length ? (labelPadding = value, _impl) : labelPadding;
+
+  /**
+   * @param {fn=} value - function to return the value of the label from a data element e.g. `d => d.data.name`
+   */
   _impl.labelValue = (value) => arguments.length ? (labelValue = value, _impl) : labelValue;
 
   return _impl;
