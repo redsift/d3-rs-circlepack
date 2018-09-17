@@ -4,26 +4,69 @@ import {
   display
 } from '@redsift/d3-rs-theme';
 
+const small = 1e-6;
+
 const rounded = (rd, w, h, x, y, tlr, trr, brr, blr) => {
   const r = rd;
   
-  return `M ${x - 2*r - tlr} ${y - r} 
-       A ${r} ${r} 0 0 1 ${x + tlr} ${y}
-       l ${(w - trr)} ${y}
-       A ${trr}  ${trr} 0 0 1 ${w} ${trr}
-       L ${w} ${(h - brr)}
-       A ${brr} ${brr} 0 0 1 ${(w - brr)} ${h} 
-       L ${blr} ${h}    
-       A ${blr} ${blr} 0 0 1 0 ${(h - blr)} 
-       L ${x} ${tlr} 
-       A ${r} ${r} 0 0 1 ${x - 2*r - tlr} ${y - r}
-       Z`;
+  if (x > 0 && y > 0) {
+    // bottom right
+    return `M ${0} ${tlr} 
+    A ${tlr} ${tlr} 0 0 1 ${tlr} ${0}
+    l ${(w - trr - tlr)} ${0}
+    A ${trr}  ${trr} 0 0 1 ${w} ${trr}
+    L ${w} ${(h - r)}
+    A ${r} ${r} 0 0 1 ${w} ${h+r} 
+    A ${r} ${r} 0 0 1 ${w - r} ${h}     
+    L ${blr} ${h}    
+    A ${blr} ${blr} 0 0 1 0 ${(h - blr)} 
+    L ${0} ${tlr}  
+    Z`;    
+  } else if (x > 0 && y < small) {
+    // top right
+    return `M ${0} ${tlr} 
+    A ${tlr} ${tlr} 0 0 1 ${tlr} ${0}
+    l ${(w - r - tlr)} ${0}
+    A ${r} ${r} 0 0 1 ${w} ${y-r} 
+    A ${r} ${r} 0 0 1 ${w} ${y+r}   
+    L ${w} ${(h - trr)}
+    A ${trr}  ${trr} 0 0 1 ${w - trr} ${h}
+    L ${blr} ${h}    
+    A ${blr} ${blr} 0 0 1 0 ${(h - blr)} 
+    L ${0} ${tlr}  
+    Z`; 
+  }  else if (x < small && y > 0) {
+    // bottom left
+    return `M ${0} ${tlr} 
+    A ${tlr} ${tlr} 0 0 1 ${tlr} ${0}
+    l ${(w - trr - tlr)} ${0}
+    A ${trr}  ${trr} 0 0 1 ${w} ${trr}
+    L ${w} ${(h - brr)}
+    A ${brr} ${brr} 0 0 1 ${(w - brr)} ${h} 
+    L ${r} ${h}    
+    A ${r} ${r} 0 0 1 ${x} ${(h + r)} 
+    A ${r} ${r} 0 0 1 ${x} ${y - r}
+    Z`;
+  } else { // both 0
+    // top left
+    return `M ${x} ${y - r} 
+    A ${r} ${r} 0 0 1 ${x + r} ${y}
+    l ${(w - trr - r)} ${y}
+    A ${trr}  ${trr} 0 0 1 ${w} ${trr}
+    L ${w} ${(h - brr)}
+    A ${brr} ${brr} 0 0 1 ${(w - brr)} ${h} 
+    L ${blr} ${h}    
+    A ${blr} ${blr} 0 0 1 0 ${(h - blr)} 
+    L ${x} ${y + r} 
+    A ${r} ${r} 0 0 1 ${x} ${y - r}
+    Z`;
+  }
 };
 
 export default () => {
 
   let padding = 2,
-    pointer = 4,
+    pointer = 3,
     theme = 'light',
     background = null,
     foreground = null;
@@ -45,7 +88,7 @@ export default () => {
       _foreground = () => foreground;
     }    
 
-    const enter = selection.entered();
+    const enter = selection.entered ? selection.entered() : selection.enter();
 
     let enterPath = enter.append('path');
     enterPath = enterPath.merge(selection.selectAll('path'));  
@@ -65,13 +108,13 @@ export default () => {
         let anchorX = Number(g.getAttribute('anchor-x'));
         let anchorY = Number(g.getAttribute('anchor-y'));
 
-        return rounded(pointer, width, height, anchorX, anchorY, 0, 2, 2, 2);
+        return rounded(pointer, width, height, anchorX, anchorY, 2, 2, 2, 2);
       }); 
 
+    const pointerOffset = Math.round(pointer / 2);  
     let enterText = enter.append('text')
       .attr('dominant-baseline', 'text-before-edge')
-      .attr('x', pointer)
-      .attr('transform', `translate(${padding}, ${padding})`);
+      .attr('transform', `translate(${padding + pointerOffset}, ${padding + pointerOffset})`);
     
     enterText = enterText.merge(selection.selectAll('text'));    
     enterText.text(value);
