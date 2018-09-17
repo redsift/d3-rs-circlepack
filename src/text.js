@@ -111,10 +111,9 @@ export default () => {
         return rounded(pointer, width, height, anchorX, anchorY, 2, 2, 2, 2);
       }); 
 
-    const pointerOffset = Math.round(pointer / 2);  
     let enterText = enter.append('text')
       .attr('dominant-baseline', 'text-before-edge')
-      .attr('transform', `translate(${padding + pointerOffset}, ${padding + pointerOffset})`);
+      .attr('transform', `translate(${padding}, ${padding})`);
     
     enterText = enterText.merge(selection.selectAll('text'));    
     enterText.text(value);
