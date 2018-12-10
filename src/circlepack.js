@@ -15,9 +15,11 @@ import {
 
 import { 
   layoutGreedy,
-  layoutLabel, 
+  
+  //  layoutLabel, 
   layoutRemoveOverlaps 
 } from '@d3fc/d3fc-label-layout';
+import layoutLabel from './layout-label.js';
 
 import {
   default as layoutTextLabel
@@ -244,7 +246,6 @@ export default function sankeyChart(id) {
         .component(textLabel);
       
       const isData = (a, b) => a != null && b != null ? dataId(a.data, a.data) == dataId(b.data, b.data): false;
-
 
       const shouldDisplayLabel = d => d.parent == _center || 
         isData(d.parent, _center) || 

@@ -434,7 +434,7 @@
 
     function update(animated) {
       let svg = d3.select('#elm').datum(data);
-      if (true) {
+      if (animated) {
         svg = svg.transition().duration(666);
       }  
       svg.call(circlepack.size(size));

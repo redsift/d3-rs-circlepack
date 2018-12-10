@@ -73,7 +73,6 @@ export default () => {
   let value = (x) => x;
 
   const _impl = (selection) => {
-    
     let _background = background;
     if (_background == null) {
       _background = () => display[theme].background;
@@ -88,13 +87,28 @@ export default () => {
       _foreground = () => foreground;
     }    
 
+    const pointerOffset = Math.round(pointer / 2);  
+
     const enter = selection.entered ? selection.entered() : selection.enter();
 
-    let enterPath = enter.append('path');
-    enterPath = enterPath.merge(selection.selectAll('path'));  
+    //  append parent group
+    const enterG = enter.append('g').attr('class', 'label');
+    
+    //  append child path and text
+    enterG
+      .append('path')
+      .attr('fill', _background);
+    enterG.append('text')
+      .attr('dominant-baseline', 'text-before-edge')
+      .attr('transform', `translate(${padding + pointerOffset}, ${padding + pointerOffset})`)
+      .attr('fill', _foreground);
+    
+    // make sure to include entered items in all updates
+    const update = selection.merge(enterG);
+    update.select('text').text(value);
 
-    enterPath
-      .attr('fill', _background)
+    //  adjust path
+    update.select('path')
       .attr('d', function () {
         if (pointer == 0) return null;
 
@@ -103,6 +117,8 @@ export default () => {
         let width = Number(g.getAttribute('layout-width'));
         let height = Number(g.getAttribute('layout-height'));
 
+        //  if in enter phase, the parent group does not have the attributes from the layout
+        //  and will exit
         if (width == 0 || height == 0) return null; // no background if no sizes
 
         let anchorX = Number(g.getAttribute('anchor-x'));
@@ -111,50 +127,9 @@ export default () => {
         return rounded(pointer, width, height, anchorX, anchorY, 2, 2, 2, 2);
       }); 
 
-    const pointerOffset = Math.round(pointer / 2);  
-    let enterText = enter.append('text')
-      .attr('dominant-baseline', 'text-before-edge')
-      .attr('transform', `translate(${padding + pointerOffset}, ${padding + pointerOffset})`);
-    
-    enterText = enterText.merge(selection.selectAll('text'));    
-    enterText.text(value);
-    
-    enterText
-      .attr('fill', _foreground);
-
-    /*
-    selection.each((data, index, group) => {
-
-      const node = group[index];
-      const nodeSelection = select(node);
-
-      let width = Number(node.getAttribute('layout-width'));
-      let height = Number(node.getAttribute('layout-height'));
-
-      let rect = rectJoin(nodeSelection, [data]);
-      rect.attr('width', width)
-        .attr('height', height);
-
-      let anchorX = Number(node.getAttribute('anchor-x'));
-      let anchorY = Number(node.getAttribute('anchor-y'));
-      let circle = pointJoin(nodeSelection, [data]);
-      circle.attr('r', 2)
-        .attr('cx', anchorX)
-        .attr('cy', anchorY);
-
-      let text = textJoin(nodeSelection, [data]);
-
-     console.log(data);
-      let text = nodeSelection.selectAll('text').data([ data ]);
-
-      text.enter()
-        .append('text')
-        .attr('dy', '0.9em')
-        .attr('transform', `translate(${padding}, ${padding})`);
-      text.text(value);
-
-    });
-          */
+    //  remove on EXIT
+    const exit = selection.exit();
+    exit.remove();
   };
 
   /**
