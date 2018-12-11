@@ -424,20 +424,23 @@
     var theme = 'light',
         size = 500;
 
+    // 'data' is a name for 2 entries in this data set causing flash
+    function identityFn(d) {
+        return d.parent ? `${d.parent.data.name}-${d.data.name}`: d.data.name;
+    }
+
     var circlepack = d3_rs_circlepack.html('flare')
                     .theme(theme)
                     .size(size) // 1. Set size
                     .tipHtml(d => `<h3>${d.data.name}</h3>`) // 2. Set tooltip
-                    .dataId(d => d ? d.name : ''); // 3. Identity function for the data, 'data' is a name for 2 entries in this data set causing flash
-                     
-
-
+                    .dataId(identityFn); // 3. Identity function for the data
+     
     function update(animated) {
       let svg = d3.select('#elm').datum(data);
       if (animated) {
         svg = svg.transition().duration(666);
       }  
-      svg.call(circlepack.size(size));
+      svg.call(circlepack);
     }
 
     update(false);
@@ -455,6 +458,8 @@
         size = 500;
       }
 
+      circlepack.size(size)
+
       update(true);
     }
 
@@ -464,6 +469,11 @@
       } else {
         data = FLARE1;
       }
+
+      //  clear the center reference
+      //  as we're binding new data
+      circlepack.center(null);
+
       update(true);
     }
 
