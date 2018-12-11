@@ -69,7 +69,9 @@ export default () => {
     pointer = 3,
     theme = 'light',
     background = null,
-    foreground = null;
+    foreground = null,
+    transition = null;
+
   let value = (x) => x;
 
   const _impl = (selection) => {
@@ -93,6 +95,11 @@ export default () => {
 
     //  append parent group
     const enterG = enter.append('g').attr('class', 'label');
+
+    //  if we have passed transition, execute it on the enter selection
+    if (transition) {
+      transition(enterG);
+    }
     
     //  append child path and text
     enterG
@@ -130,6 +137,8 @@ export default () => {
     //  remove on EXIT
     const exit = selection.exit();
     exit.remove();
+
+    return update;
   };
 
   /**
@@ -151,6 +160,12 @@ export default () => {
    * @param {function=} v - function to return the value to use for the text
    */
   _impl.value = (...v) => v.length ? (value = v[0], _impl) : value;
+    
+  /**
+   * @param {function=} v - function to run on enter selection allowing for transition
+   */
+  _impl.transition = (...v) => v.length ? (transition = v[0], _impl) : value;
   
+
   return _impl;
 };

@@ -1,9 +1,21 @@
+/*
+    Based on https://github.com/ColinEberhardt/d3fc-label-layout/blob/master/src/label.js
+*/
+
 import { sum } from 'd3-array';
 import { select } from 'd3-selection';
 import { scaleIdentity } from 'd3-scale';
 import { include, rebindAll } from '@d3fc/d3fc-rebind';
 
 export const functor = (d) => typeof d === 'function' ? d : () => d;
+
+/*
+    Default identify function which makes sure that similarly named nodes with
+    different parents are recognised as indeed different nodes
+*/
+export const identityFn = (d) => {
+    return d.parent ? `${d.parent.data.name}-${d.data.name}`: d.data.name;
+}
 
 export default (layoutStrategy) => {
 
@@ -14,12 +26,12 @@ export default (layoutStrategy) => {
     let component = () => {};
     let xScale = scaleIdentity();
     let yScale = scaleIdentity();
+    let dataId = identityFn;
 
     const label = (selection) => {
 
         selection.each((data, index, group) => {
-            
-            let g = select(group[index]).selectAll('g.label').data(data, (d) => d.data.name);
+            let g = select(group[index]).selectAll('g.label').data(data, dataId);
             g.call(component);
 
             // obtain the rectangular bounding boxes for each child
@@ -48,11 +60,10 @@ export default (layoutStrategy) => {
             // apply the strategy to derive the layout. The strategy does not change the order
             // or number of label.
             const layout = strategy(childRects);
-            
+
             //  update labels positions and metadata
             g.attr('style', (_, i) => 'display:' + (layout[i].hidden ? 'none' : 'inherit'))
                 .attr('transform', (_, i) => 'translate(' + layout[i].x + ', ' + layout[i].y + ')')
-                
                 // set the layout width / height so that children can use SVG layout if required
                 .attr('layout-width', (_, i) => layout[i].width)
                 .attr('layout-height', (_, i) => layout[i].height)
@@ -110,6 +121,14 @@ export default (layoutStrategy) => {
             return yScale;
         }
         yScale = args[0];
+        return label;
+    };
+
+    label.dataId = (...args) => {
+        if (!args.length) {
+            return dataId;
+        }
+        dataId = args[0];
         return label;
     };
 

@@ -158,7 +158,7 @@ export default function sankeyChart(id) {
         }
       });
 
-      let circle = g.select('g.circles').selectAll('circle').data(computed, (d, i) => dataId(d.data, i));
+      let circle = g.select('g.circles').selectAll('circle').data(computed, (d, i) => dataId(d, i));
       
       let k = w / (_center.r*2);
 
@@ -208,8 +208,9 @@ export default function sankeyChart(id) {
       // the component used to render each label
       const textLabel = layoutTextLabel()
         .padding(labelPadding)
-        .value(labelValue); 
-
+        .value(labelValue)
+        .transition((s) => s.attr('fill-opacity', 0).transition(context).attr('fill-opacity', .3));
+       
       // create the layout that positions the labels
       const labels = layoutLabel(labelStrategy)
         .size((d, i, g) => {
@@ -232,24 +233,15 @@ export default function sankeyChart(id) {
           return [(d.x - _center.x) * k, (d.y - _center.y) * k];
         })
         .decorate(s => {
-          s.enter().attr('fill-opacity', 0.0);
-          s.exit().attr('fill-opacity', 0.0);
-
-          if (transition === true) {
-            s = s.transition(context);
-          }
-          s.attr('fill-opacity', 0.3);
-
           if (decorateLabel) decorateLabel(s);
-          
         })
         .component(textLabel);
       
-      const isData = (a, b) => a != null && b != null ? dataId(a.data, a.data) == dataId(b.data, b.data): false;
+      const isData = (a, b) => a != null && b != null ? dataId(a, a) == dataId(b, b): false;
 
-      const shouldDisplayLabel = d => d.parent == _center || 
-        isData(d.parent, _center) || 
-        (forceLabel && isData(d, _center));
+      const shouldDisplayLabel = (d) => {
+        return d.parent == _center || isData(d.parent, _center) || (forceLabel && isData(d, _center));
+      };
 
       let label = g.select('g.labels').datum(computed.filter(shouldDisplayLabel));
       if (transition === true) {
