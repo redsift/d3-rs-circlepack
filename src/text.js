@@ -1,5 +1,3 @@
-import { select } from 'd3-selection';
-
 import { 
   display
 } from '@redsift/d3-rs-theme';
