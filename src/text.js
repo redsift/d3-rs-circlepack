@@ -89,8 +89,6 @@ export default () => {
       _foreground = () => foreground;
     }    
 
-    const pointerOffset = Math.round(pointer / 2);  
-
     const enter = selection.entered ? selection.entered() : selection.enter();
 
     //  append parent group
@@ -107,7 +105,7 @@ export default () => {
       .attr('fill', _background);
     enterG.append('text')
       .attr('dominant-baseline', 'text-before-edge')
-      .attr('transform', `translate(${padding + pointerOffset}, ${padding + pointerOffset})`)
+      .attr('transform', `translate(${padding}, ${padding})`)
       .attr('fill', _foreground);
     
     // make sure to include entered items in all updates
