@@ -1,5 +1,3 @@
-import { select } from 'd3-selection';
-
 import { 
   display
 } from '@redsift/d3-rs-theme';
@@ -69,11 +67,12 @@ export default () => {
     pointer = 3,
     theme = 'light',
     background = null,
-    foreground = null;
+    foreground = null,
+    transition = null;
+
   let value = (x) => x;
 
   const _impl = (selection) => {
-    
     let _background = background;
     if (_background == null) {
       _background = () => display[theme].background;
@@ -90,11 +89,29 @@ export default () => {
 
     const enter = selection.entered ? selection.entered() : selection.enter();
 
-    let enterPath = enter.append('path');
-    enterPath = enterPath.merge(selection.selectAll('path'));  
+    //  append parent group
+    const enterG = enter.append('g').attr('class', 'label');
 
-    enterPath
-      .attr('fill', _background)
+    //  if we have passed transition, execute it on the enter selection
+    if (transition) {
+      transition(enterG);
+    }
+    
+    //  append child path and text
+    enterG
+      .append('path')
+      .attr('fill', _background);
+    enterG.append('text')
+      .attr('dominant-baseline', 'text-before-edge')
+      .attr('transform', `translate(${padding}, ${padding})`)
+      .attr('fill', _foreground);
+    
+    // make sure to include entered items in all updates
+    const update = selection.merge(enterG);
+    update.select('text').text(value);
+
+    //  adjust path
+    update.select('path')
       .attr('d', function () {
         if (pointer == 0) return null;
 
@@ -103,6 +120,8 @@ export default () => {
         let width = Number(g.getAttribute('layout-width'));
         let height = Number(g.getAttribute('layout-height'));
 
+        //  if in enter phase, the parent group does not have the attributes from the layout
+        //  and will exit
         if (width == 0 || height == 0) return null; // no background if no sizes
 
         let anchorX = Number(g.getAttribute('anchor-x'));
@@ -111,49 +130,11 @@ export default () => {
         return rounded(pointer, width, height, anchorX, anchorY, 2, 2, 2, 2);
       }); 
 
-    let enterText = enter.append('text')
-      .attr('dominant-baseline', 'text-before-edge')
-      .attr('transform', `translate(${padding}, ${padding})`);
-    
-    enterText = enterText.merge(selection.selectAll('text'));    
-    enterText.text(value);
-    
-    enterText
-      .attr('fill', _foreground);
+    //  remove on EXIT
+    const exit = selection.exit();
+    exit.remove();
 
-    /*
-    selection.each((data, index, group) => {
-
-      const node = group[index];
-      const nodeSelection = select(node);
-
-      let width = Number(node.getAttribute('layout-width'));
-      let height = Number(node.getAttribute('layout-height'));
-
-      let rect = rectJoin(nodeSelection, [data]);
-      rect.attr('width', width)
-        .attr('height', height);
-
-      let anchorX = Number(node.getAttribute('anchor-x'));
-      let anchorY = Number(node.getAttribute('anchor-y'));
-      let circle = pointJoin(nodeSelection, [data]);
-      circle.attr('r', 2)
-        .attr('cx', anchorX)
-        .attr('cy', anchorY);
-
-      let text = textJoin(nodeSelection, [data]);
-
-     console.log(data);
-      let text = nodeSelection.selectAll('text').data([ data ]);
-
-      text.enter()
-        .append('text')
-        .attr('dy', '0.9em')
-        .attr('transform', `translate(${padding}, ${padding})`);
-      text.text(value);
-
-    });
-          */
+    return update;
   };
 
   /**
@@ -175,6 +156,12 @@ export default () => {
    * @param {function=} v - function to return the value to use for the text
    */
   _impl.value = (...v) => v.length ? (value = v[0], _impl) : value;
+    
+  /**
+   * @param {function=} v - function to run on enter selection allowing for transition
+   */
+  _impl.transition = (...v) => v.length ? (transition = v[0], _impl) : value;
   
+
   return _impl;
 };
