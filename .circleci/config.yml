@@ -1,6 +1,6 @@
 pkg: &pkg d3-rs-circlepack
 s3: &s3_bucket redsift-static
-image: &default_image circleci/node:10-browsers
+image: &default_image circleci/node:10-browsers-legacy
 
 version: 2
 jobs:
