@@ -224,7 +224,7 @@ export default function sankeyChart(id) {
             }
             catch (e) {
               // TODO: hack to prevent exception on Firefox, size below is adequate
-              textSize = { width: (node.textContent || '').length * 7, height: 30 };
+              textSize = { width: (node.textContent || '').length * 6, height: 20 };
             }
           } else {
             textSize = { width: 10, height: 10 }; // TODO: temp hack for JSDOM testing
