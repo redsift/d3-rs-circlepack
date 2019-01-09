@@ -224,7 +224,7 @@ export default function sankeyChart(id) {
             }
             catch (e) {
               // TODO: hack to prevent exception on Firefox
-              console.error('d3-rs-circlepack: getBBox: ', e);
+              // console.error('d3-rs-circlepack: getBBox: ', e);
             }
           } else {
             textSize = { width: 10, height: 10 }; // TODO: temp hack for JSDOM testing
