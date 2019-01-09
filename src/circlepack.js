@@ -217,15 +217,17 @@ export default function sankeyChart(id) {
           // measure the label and add the required padding
           const node = g[i].getElementsByTagName('text')[0];
 
-          let textSize = { width: 10, height: 10 }; // TODO: temp hack for JSDOM testing;
+          let textSize = null;
           if (node.getBBox) {
             try {
               textSize = node.getBBox();
             }
             catch (e) {
-              // TODO: hack to prevent exception on Firefox
-              // console.error('d3-rs-circlepack: getBBox: ', e);
+              // TODO: hack to prevent exception on Firefox, size below is adequate
+              textSize = { width: (node.textContent || '').length * 7, height: 30 };
             }
+          } else {
+            textSize = { width: 10, height: 10 }; // TODO: temp hack for JSDOM testing
           }
           return [textSize.width + labelPadding * 2, textSize.height + labelPadding * 2];
         })
