@@ -2,7 +2,7 @@
   <head>
     <link rel="stylesheet" type="text/css" href="https://static.redsift.io/reusable/ui-rs-core/latest/css/ui-rs-core.min.css">
     <style>
-    @import url(https://fonts.googleapis.com/css?family=Source+Code+Pro:300,500);  
+    @import url(https://fonts.googleapis.com/css?family=Source+Code+Pro:300,500);
     body {
       margin: 1em;
     }
@@ -17,24 +17,24 @@
       font-family: "Source Code Pro", Consolas, "Liberation Mono", Menlo, Courier, monospace;
     }
 
-    </style> 
+    </style>
   </head>
   <body>
-    <div id="buttons"> 
+    <div id="buttons">
       <button onclick="toggleTheme()">Theme</button>
       <button onclick="toggleData()">Data</button>
       <button onclick="toggleSize()">Size</button>
-      
-    
+
+
     </div>
     <div id="elm"></div>
-        
+
     <script src="https://d3js.org/d3.v5.min.js"></script>
     <script src="/dist/@redsift/d3-rs-circlepack.umd.js"></script>
     <script>
 
     'use strict';
-      
+
     var FLARE1 = { name: 'root', children: [{ name: 'Loading...', size: 1}]};
 
     var FLARE2 = {
@@ -434,19 +434,19 @@
                     .size(size) // 1. Set size
                     .tipHtml(d => `<h3>${d.data.name}</h3>`) // 2. Set tooltip
                     .dataId(identityFn); // 3. Identity function for the data
-     
+
     function update(animated) {
       let svg = d3.select('#elm').datum(data);
       if (animated) {
         svg = svg.transition().duration(666);
-      }  
+      }
       svg.call(circlepack);
     }
 
     update(false);
-    
+
     circlepack.onClick(function (d) { // 3. Set onlick to focus the selected node. null zooms back up
-      circlepack.center(d); 
+      circlepack.center(d);
       update(true);
     });
 
@@ -488,7 +488,7 @@
       update(true);
     }
 
-    
+
     </script>
   </body>
 </html>

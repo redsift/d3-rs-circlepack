@@ -6,18 +6,18 @@ import { scaleLinear } from 'd3-scale';
 import { body as tip } from '@redsift/d3-rs-tip';
 
 import { html as svg } from '@redsift/d3-rs-svg';
-import { 
+import {
   presentation10,
   display,
   fonts,
   widths,
 } from '@redsift/d3-rs-theme';
 
-import { 
+import {
   layoutGreedy,
-  
-  //  layoutLabel, 
-  layoutRemoveOverlaps 
+
+  //  layoutLabel,
+  layoutRemoveOverlaps
 } from '@d3fc/d3fc-label-layout';
 import layoutLabel from './layout-label.js';
 
@@ -31,11 +31,11 @@ const DEFAULT_MARGIN = 32;
 const DEFAULT_TIP_OFFSET = 7;
 
 export default function sankeyChart(id) {
-  let classed = 'chart-circlepack', 
+  let classed = 'chart-circlepack',
     theme = 'light',
     background = undefined,
     width = DEFAULT_SIZE,
-    height = null, 
+    height = null,
     margin = DEFAULT_MARGIN,
     style = undefined,
     scale = 1.0,
@@ -43,7 +43,7 @@ export default function sankeyChart(id) {
     onClick = null,
     padding = 2.0,
     circleFill = null,
-    label = null, 
+    label = null,
     tipHtml = null,
     animated = false,
     center = null,
@@ -53,7 +53,7 @@ export default function sankeyChart(id) {
     labelStrategy = layoutRemoveOverlaps(layoutGreedy()),
     labelPadding = 4.0,
     labelValue = (d) => d.data.name;
-  
+
   let tid = null;
   if (id) tid = 'tip-' + id;
   let rtip = tip(tid);
@@ -61,12 +61,12 @@ export default function sankeyChart(id) {
   function _impl(context) {
     let selection = context.selection ? context.selection() : context,
       transition = (context.selection !== undefined);
-  
+
     let _background = background;
     if (_background === undefined) {
       _background = display[theme].background;
     }
-    
+
     let _label = label;
     if (_label == null) {
       _label = (d) => d.data.name;
@@ -85,12 +85,12 @@ export default function sankeyChart(id) {
     rtip.offset([ -DEFAULT_TIP_OFFSET, 1 ]).style(null).html(tipHtml).transition(333);
 
     selection.each(function() {
-      let node = select(this);  
+      let node = select(this);
 
       let her = node.datum() || {};
 
       let sh = height || Math.round(width * DEFAULT_ASPECT);
-      
+
       // SVG element
       let sid = null;
       if (id) sid = 'svg-' + id;
@@ -103,21 +103,21 @@ export default function sankeyChart(id) {
       if (transition === true) {
         tnode = node.transition(context);
       }
-    
+
       let w = root.childWidth(),
-        h = root.childHeight();        
+        h = root.childHeight();
       let _style = style;
       if (_style === undefined) {
         // build a style sheet from the embedded charts
         _style = [ _impl, rtip ].filter(c => c != null).reduce((p, c) => p + c.defaultStyle(theme, w), '');
-      }    
+      }
 
       root.style(_style);
       tnode.call(root);
 
       let snode = node.select(root.self());
       let elmS = snode.select(root.child());
-      
+
       elmS.call(rtip);
 
       let g = elmS.select(_impl.self());
@@ -151,7 +151,7 @@ export default function sankeyChart(id) {
         forceLabel = true;
       }
 
-      // background select call catch          
+      // background select call catch
       snode.select('rect.background').on('click', () => {
         if (onClick) {
           onClick(null);
@@ -159,7 +159,7 @@ export default function sankeyChart(id) {
       });
 
       let circle = g.select('g.circles').selectAll('circle').data(computed, (d, i) => dataId(d, i));
-      
+
       let k = w / (_center.r*2);
 
       // Enter any new nodes at the parent's previous position.
@@ -186,12 +186,12 @@ export default function sankeyChart(id) {
       if (transition === true) {
         circleUpdate = circleUpdate.transition(context);
       }
-      
+
       circleUpdate.attr('r',  d => d.r * k)
         .attr('class',  d => d.parent ? d.children ? 'node node--middle' : 'node node--leaf' : 'node node--root')
         .attr('transform',  d => 'translate(' + (d.x - _center.x) * k + ',' + (d.y - _center.y) * k + ')')
         .attr('fill-opacity', 1.0)
-        .attr('fill',  _circleFill);          
+        .attr('fill',  _circleFill);
 
 
       let circleExit = circle.exit();
@@ -202,7 +202,7 @@ export default function sankeyChart(id) {
       circleExit
         .attr('fill-opacity', 0.0)
         .remove();
-      
+
       const hasChildren = (d) => d.children != null &&  d.children.length > 0;
 
       // the component used to render each label
@@ -210,7 +210,7 @@ export default function sankeyChart(id) {
         .padding(labelPadding)
         .value(labelValue)
         .transition((s) => s.attr('fill-opacity', 0).transition(context).attr('fill-opacity', .3));
-       
+
       // create the layout that positions the labels
       const labels = layoutLabel(labelStrategy)
         .size((d, i, g) => {
@@ -219,7 +219,13 @@ export default function sankeyChart(id) {
 
           let textSize = null;
           if (node.getBBox) {
-            textSize = node.getBBox();
+            try {
+              textSize = node.getBBox();
+            }
+            catch (e) {
+              // TODO: hack to prevent exception on Firefox
+              console.error('d3-rs-circlepack: getBBox: ', e);
+            }
           } else {
             textSize = { width: 10, height: 10 }; // TODO: temp hack for JSDOM testing
           }
@@ -236,7 +242,7 @@ export default function sankeyChart(id) {
           if (decorateLabel) decorateLabel(s);
         })
         .component(textLabel);
-      
+
       const isData = (a, b) => a != null && b != null ? dataId(a, a) == dataId(b, b): false;
 
       const shouldDisplayLabel = (d) => {
@@ -263,9 +269,9 @@ export default function sankeyChart(id) {
         labelUpdate = labelUpdate.transition(context);
       }
 
-      labelUpdate.attr('fill-opacity', d =>  d.parent == _center || 
-                                            isData(d.parent, _center) || 
-                                            (forceLabel && isData(d, _center)) ? 
+      labelUpdate.attr('fill-opacity', d =>  d.parent == _center ||
+                                            isData(d.parent, _center) ||
+                                            (forceLabel && isData(d, _center)) ?
                                             1.0 : 0.0)
           .attr('transform',  d => 'translate(' + (d.x - _center.x) * k + ',' + (d.y - _center.y - (d.children && d.children.length > 0 ? d.r / 2 : 0.0)) * k + ')')
           .attr('fill', () => display[theme].text); //todo: param
@@ -274,7 +280,7 @@ export default function sankeyChart(id) {
         if (transition === true) {
           labelExit = labelExit.transition(context);
         }
-  
+
       labelExit
           .attr('fill-opacity', 0.0)
           .remove();
@@ -286,20 +292,20 @@ export default function sankeyChart(id) {
 
   _impl.self = () => `g${id ?  '#' + id : '.' + classed}`;
   _impl.id = () => id;
-  
+
   //TODO: model for text shadow based on theme
   _impl.defaultStyle = (_theme, _width) => `
-                  ${_impl.importFonts() ? fonts.variable.cssImport : ''}  
-                  ${_impl.self()} { 
+                  ${_impl.importFonts() ? fonts.variable.cssImport : ''}
+                  ${_impl.self()} {
                     font-size: ${fonts.variable.sizeForWidth(_width)};
                   }
-                  ${_impl.self()} .labels { 
+                  ${_impl.self()} .labels {
                     fill: ${display[_theme].lowlight};
                   }
-                  ${_impl.self()} .labels text { 
+                  ${_impl.self()} .labels text {
                     font-family: ${fonts.variable.family};
-                    font-weight: ${fonts.variable.weightColor};     
-                    pointer-events: none;    
+                    font-weight: ${fonts.variable.weightColor};
+                    pointer-events: none;
                   }
                   ${_impl.self()} circle.node:hover {
                     stroke:${display[_theme].axis};
@@ -309,7 +315,7 @@ export default function sankeyChart(id) {
                     pointer-events: all;
                   }
                 `;
-  
+
   _impl.importFonts = (value) => arguments.length ? (importFonts = value, _impl) : importFonts;
   _impl.classed = (value) => arguments.length ? (classed = value, _impl) : classed;
   _impl.background = (value) => arguments.length ? (background = value, _impl) : background;
