@@ -47,6 +47,7 @@ export default (layoutStrategy) => {
           ];
           let childSize = size(d, i, nodes);
           return {
+            data: d.data,
             hidden: false,
             x: childPos[0],
             y: childPos[1],
@@ -57,6 +58,7 @@ export default (layoutStrategy) => {
 
       // apply the strategy to derive the layout. The strategy does not change the order
       // or number of label.
+      console.log('childRects', childRects);
       const layout = strategy(childRects);
 
       //  update labels positions and metadata

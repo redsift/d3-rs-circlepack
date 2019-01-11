@@ -17,8 +17,10 @@ import {
   layoutGreedy,
 
   //  layoutLabel,
-  layoutRemoveOverlaps
+  //  layoutRemoveOverlaps
 } from '@d3fc/d3fc-label-layout';
+
+import layoutRemoveOverlaps from './hierarchical-remove-layout.js';
 import layoutLabel from './layout-label.js';
 
 import {
