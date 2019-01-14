@@ -15,13 +15,13 @@ import {
 
 import {
   layoutGreedy,
-
-  //  layoutLabel,
+  layoutAnnealing,
   //  layoutRemoveOverlaps
 } from '@d3fc/d3fc-label-layout';
 
-import layoutRemoveOverlaps from './hierarchical-remove-layout.js';
-import layoutLabel from './layout-label.js';
+import layoutRemoveOverlaps from './label-layout/custom-remove-layout.js';
+import { collisionSizeStrategy, childrenNumStrategy, childrenSizeStrategy } from './label-layout/label-removal-strategies.js';
+import layoutLabel from './label-layout/layout-label.js';
 
 import {
   default as layoutTextLabel
@@ -52,7 +52,8 @@ export default function sankeyChart(id) {
     sum = (d) => d.size,
     dataId = (d, i) => d.id == null ? i : d.id,
     decorateLabel = null,
-    labelStrategy = layoutRemoveOverlaps(layoutGreedy()),
+    //labelStrategy = layoutRemoveOverlaps(layoutGreedy().bounds({ x: 2000, y: 2000, width: 100, height: 100 }), childrenNumSorting),
+    labelStrategy = layoutRemoveOverlaps(layoutGreedy(), collisionSizeStrategy),
     labelPadding = 4.0,
     labelValue = (d) => d.data.name;
 

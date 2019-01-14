@@ -58,7 +58,6 @@ export default (layoutStrategy) => {
 
       // apply the strategy to derive the layout. The strategy does not change the order
       // or number of label.
-      console.log('childRects', childRects);
       const layout = strategy(childRects);
 
       //  update labels positions and metadata
