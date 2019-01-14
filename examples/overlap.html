@@ -32,6 +32,24 @@
 
     'use strict';
       
+    function getLabelStrategy() {
+      //  1. Choose an algorithm to place labels so that the overlap is minimised
+      //  options for label placement strategies are 'greedy' and 'annealing'
+      //  @see https://github.com/ColinEberhardt/d3fc-label-layout#strategy
+      var placementStrategies = d3_rs_circlepack.labelPlacementStrategies;
+      var placementStrategy = placementStrategies.layoutAnnealing;
+
+      //  2. Choose an algorithm which removes overlapping labels based on different attributes
+      //  options for label remove strategy are: 'collisionSizeStrategy', 'childrenNumStrategy', 'childrenSizeStrategy'
+      //  @see ./src/label-layout/label-removal-strategies.js for their description
+      var removalStrategies = d3_rs_circlepack.labelRemovalStrategies;
+      var removalStrategy = removalStrategies.childrenNumStrategy;
+
+      //  3. Construct finally strategy using a cusotm layoutRemovalOverlaps which allows for
+      //  defining which removal algorithm to use
+      return d3_rs_circlepack.layoutRemoveOverlaps(placementStrategy(), removalStrategies);
+    }
+
     var FLARE =       {
       "name": "animate",
       "children": [
@@ -73,9 +91,10 @@
                     .theme(theme)
                     .size(size) // 1. Set size
                     .tipHtml(d => `<h3>${d.data.name}</h3>`) // 2. Set tooltip
-                    .dataId(d => d ? d.name : ''); // 3. Identity function for the data, 'data' is a name for 2 entries in this data set causing flash
+                    .dataId(d => d ? d.name : '') // 3. Identity function for the data, 'data' is a name for 2 entries in this data set causing flash
+                    .labelStrategy(getLabelStrategy()) // 4. pick label movement strategy which works for your dataset
+                    .margin(50); // 5. Not to crop the long label titles, you can give chart more space around it
                      
-
 
     function update(animated) {
       let svg = d3.select('#elm').datum(data);

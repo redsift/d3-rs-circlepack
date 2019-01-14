@@ -29,7 +29,7 @@ export default (adaptedStrategy, removalSortingStrategy) => {
             // filter out all collisions with no collision
             const notNullCollisions = collisions.filter((c) => c[1] > 0); 
 
-            // find out the maximum collision based on the whatever the removal sorting strategy is
+            // find out the maximum collision based on whatever the removal sorting strategy is
             const leastValueIndex = scan(notNullCollisions, removalSortingStrategy);
             const maximumCollision = notNullCollisions[leastValueIndex];
             
