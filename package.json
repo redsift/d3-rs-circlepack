@@ -1,6 +1,6 @@
 {
   "name": "@redsift/d3-rs-circlepack",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Generates circlepack charts using D3v4.",
   "keywords": [
     "circle",
