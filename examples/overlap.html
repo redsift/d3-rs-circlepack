@@ -36,6 +36,8 @@
       //  1. Choose an algorithm to place labels so that the overlap is minimised
       //  options for label placement strategies are 'greedy' and 'annealing'
       //  @see https://github.com/ColinEberhardt/d3fc-label-layout#strategy
+      //  Please note that if you choose 'annealing', the label placement
+      //  will be non-deterministic (e.g. will be slightly different after each recalculation)
       var placementStrategies = d3_rs_circlepack.labelPlacementStrategies;
       var placementStrategy = placementStrategies.layoutAnnealing;
 
@@ -47,7 +49,7 @@
 
       //  3. Construct finally strategy using a cusotm layoutRemovalOverlaps which allows for
       //  defining which removal algorithm to use
-      return d3_rs_circlepack.layoutRemoveOverlaps(placementStrategy(), removalStrategies);
+      return d3_rs_circlepack.layoutRemoveOverlaps(placementStrategy(), removalStrategy);
     }
 
     var FLARE =       {
