@@ -47,6 +47,7 @@ export default (layoutStrategy) => {
           ];
           let childSize = size(d, i, nodes);
           return {
+            data: d.data,
             hidden: false,
             x: childPos[0],
             y: childPos[1],
@@ -60,14 +61,14 @@ export default (layoutStrategy) => {
       const layout = strategy(childRects);
 
       //  update labels positions and metadata
-      g.attr('style', (_, i) => 'display:' + (layout[i].hidden ? 'none' : 'inherit'))
+      g.style('display', (_, i) => (layout[i].hidden ? 'none' : 'inherit'))
         .attr('transform', (_, i) => 'translate(' + layout[i].x + ', ' + layout[i].y + ')')
         // set the layout width / height so that children can use SVG layout if required
         .attr('layout-width', (_, i) => layout[i].width)
         .attr('layout-height', (_, i) => layout[i].height)
         .attr('anchor-x', (d, i) => childRects[i].x - layout[i].x)
         .attr('anchor-y', (d, i) => childRects[i].y - layout[i].y);
-
+        
       g.call(component);
 
       decorate(g, data, index);

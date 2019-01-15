@@ -434,7 +434,7 @@
                     .size(size) // 1. Set size
                     .tipHtml(d => `<h3>${d.data.name}</h3>`) // 2. Set tooltip
                     .dataId(identityFn); // 3. Identity function for the data
-
+                    
     function update(animated) {
       let svg = d3.select('#elm').datum(data);
       if (animated) {
