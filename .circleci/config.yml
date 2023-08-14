@@ -2,7 +2,9 @@ pkg: &pkg d3-rs-circlepack
 s3: &s3_bucket redsift-static
 image: &default_image cimg/node:16.20.2-browsers
 
-version: 2
+version: 2.1
+orbs:
+  browser-tools: circleci/browser-tools@1.4.3
 jobs:
   build:
     docker:
@@ -17,13 +19,6 @@ jobs:
           command: |
             npm ci
             npm test
-      - run:
-          name: Capture shot
-          command: |
-            npm run browse &
-            sleep 5
-            curl https://raw.githubusercontent.com/ariya/phantomjs/master/examples/rasterize.js -o r.js
-            phantomjs r.js http://localhost:3000/examples/preview.html ./dist/preview.png
       - persist_to_workspace:
           root: dist
           paths:
