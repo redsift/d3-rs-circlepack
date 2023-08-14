@@ -15,11 +15,12 @@ import {
 
 import {
   layoutGreedy,
-
-  //  layoutLabel,
-  layoutRemoveOverlaps
+  layoutAnnealing,
 } from '@d3fc/d3fc-label-layout';
-import layoutLabel from './layout-label.js';
+
+import layoutRemoveOverlaps from './label-layout/custom-remove-layout.js';
+import { collisionSizeStrategy } from './label-layout/label-removal-strategies.js';
+import layoutLabel from './label-layout/layout-label.js';
 
 import {
   default as layoutTextLabel
@@ -50,7 +51,7 @@ export default function sankeyChart(id) {
     sum = (d) => d.size,
     dataId = (d, i) => d.id == null ? i : d.id,
     decorateLabel = null,
-    labelStrategy = layoutRemoveOverlaps(layoutGreedy()),
+    labelStrategy = layoutRemoveOverlaps(layoutGreedy(), collisionSizeStrategy),
     labelPadding = 4.0,
     labelValue = (d) => d.data.name;
 
@@ -255,36 +256,6 @@ export default function sankeyChart(id) {
       }
       label.call(labels);
 
-      /* TODO: Data ID is a problem
-      let label = g.select('g.labels').selectAll('text').data(computed, (d, i) => dataId(d.data, i));
-
-      let labelEnter = label.enter().append('text')
-        .attr('transform',  d => 'translate(' + (d.x - _center.x) * k + ',' + (d.y - _center.y) * k + ')')
-        .attr('fill-opacity', 0.0);
-
-      let labelUpdate = labelEnter.merge(label);
-      labelUpdate.text(d => d.data.name); //todo: param
-
-      if (transition === true) {
-        labelUpdate = labelUpdate.transition(context);
-      }
-
-      labelUpdate.attr('fill-opacity', d =>  d.parent == _center ||
-                                            isData(d.parent, _center) ||
-                                            (forceLabel && isData(d, _center)) ?
-                                            1.0 : 0.0)
-          .attr('transform',  d => 'translate(' + (d.x - _center.x) * k + ',' + (d.y - _center.y - (d.children && d.children.length > 0 ? d.r / 2 : 0.0)) * k + ')')
-          .attr('fill', () => display[theme].text); //todo: param
-
-      let labelExit = label.exit();
-        if (transition === true) {
-          labelExit = labelExit.transition(context);
-        }
-
-      labelExit
-          .attr('fill-opacity', 0.0)
-          .remove();
-      */
       rtip.hide();
 
     });

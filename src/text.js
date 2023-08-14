@@ -90,7 +90,10 @@ export default () => {
     const enter = selection.entered ? selection.entered() : selection.enter();
 
     //  append parent group
-    const enterG = enter.append('g').attr('class', 'label');
+    const enterG = enter.append('g')
+      .attr('class', 'label')
+      //  we don't want labels to get in the way of the interaction
+      .style('pointer-events', 'none');
 
     //  if we have passed transition, execute it on the enter selection
     if (transition) {
@@ -104,7 +107,12 @@ export default () => {
     enterG.append('text')
       .attr('dominant-baseline', 'text-before-edge')
       .attr('transform', `translate(${padding}, ${padding})`)
-      .attr('fill', _foreground);
+      .attr('fill', _foreground)
+      //  the text should be selectable
+      .style('-ms-user-select', 'none')
+      .style('-webkit-user-select', 'none')
+      .style('-moz-user-select', 'none')
+      .style('user-select', 'none');
     
     // make sure to include entered items in all updates
     const update = selection.merge(enterG);
