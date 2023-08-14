@@ -8,43 +8,42 @@ import { scan } from 'd3-array';
 import { collisionArea } from './utils.js';
 
 export default (adaptedStrategy, removalSortingStrategy) => {
+  adaptedStrategy = adaptedStrategy || ((x) => x);
 
-    adaptedStrategy = adaptedStrategy || ((x) => x);
+  const removeOverlaps = (layout) => {
+    let adjustedLayout = adaptedStrategy(layout);
 
-    const removeOverlaps = (layout) => {
-        let adjustedLayout = adaptedStrategy(layout);
+    //  make sure to add data back
+    adjustedLayout = adjustedLayout.map((l, i) => {
+      l.data = layout[i].data;
+      return l;
+    });
 
-        //  make sure to add data back
-        adjustedLayout = adjustedLayout.map((l, i) => {
-            l.data = layout[i].data;
-            return l;
-        });
-        
-        while (true) {
-            // find the collision area for all overlapping rectangles, hiding the one
-            // with the greatest overlap
-            const visible = adjustedLayout.filter((d) => !d.hidden);
-            const collisions = visible.map((d, i) => [d, collisionArea(visible, i)]);
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      // find the collision area for all overlapping rectangles, hiding the one
+      // with the greatest overlap
+      const visible = adjustedLayout.filter((d) => !d.hidden);
+      const collisions = visible.map((d, i) => [d, collisionArea(visible, i)]);
 
-            // filter out all collisions with no collision
-            const notNullCollisions = collisions.filter((c) => c[1] > 0); 
+      // filter out all collisions with no collision
+      const notNullCollisions = collisions.filter((c) => c[1] > 0);
 
-            // find out the maximum collision based on whatever the removal sorting strategy is
-            const leastValueIndex = scan(notNullCollisions, removalSortingStrategy);
-            const maximumCollision = notNullCollisions[leastValueIndex];
-            
-            if (notNullCollisions.length > 0) {
-                maximumCollision[0].hidden = true;
-            } else {
-                break;
-            }
-				}
+      // find out the maximum collision based on whatever the removal sorting strategy is
+      const leastValueIndex = scan(notNullCollisions, removalSortingStrategy);
+      const maximumCollision = notNullCollisions[leastValueIndex];
 
-        return adjustedLayout;
-    };
+      if (notNullCollisions.length > 0) {
+        maximumCollision[0].hidden = true;
+      } else {
+        break;
+      }
+    }
 
-    rebindAll(removeOverlaps, adaptedStrategy);
+    return adjustedLayout;
+  };
 
-    return removeOverlaps;
+  rebindAll(removeOverlaps, adaptedStrategy);
+
+  return removeOverlaps;
 };
-

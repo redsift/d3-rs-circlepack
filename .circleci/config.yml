@@ -15,7 +15,7 @@ jobs:
       - run:
           name: Build and test
           command: |
-            npm install
+            npm ci
             npm test
       - run:
           name: Capture shot

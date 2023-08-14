@@ -15,7 +15,6 @@ import {
 
 import {
   layoutGreedy,
-  layoutAnnealing,
 } from '@d3fc/d3fc-label-layout';
 
 import layoutRemoveOverlaps from './label-layout/custom-remove-layout.js';
