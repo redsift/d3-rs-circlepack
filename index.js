@@ -17,13 +17,13 @@ export {
 * Export label placing strategies and label remove strategies
 */
 export {
-	default as layoutRemoveOverlaps
+  default as layoutRemoveOverlaps
 } from './src/label-layout/custom-remove-layout.js';
 
 export {
-	default as labelPlacementStrategies
+  default as labelPlacementStrategies
 } from './src/label-layout/label-placement-strategies.js';
 
-export { 
-	default as labelRemovalStrategies
+export {
+  default as labelRemovalStrategies
 } from './src/label-layout/label-removal-strategies.js';
