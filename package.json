@@ -1,9 +1,9 @@
 {
   "name": "@redsift/d3-rs-circlepack",
-  "version": "0.0.5",
+  "version": "0.1.5",
   "description": "Generates circlepack charts using D3v4.",
   "keywords": [
-    "tree",
+    "circle",
     "redsift",
     "d3",
     "chart"
@@ -14,47 +14,44 @@
     "name": "Rahul Powar",
     "url": "https://medium.com/@rahulpowar"
   },
-  "main": "distribution/d3-rs-circlepack.umd-es2015.js",
-  "browser": "distribution/d3-rs-circlepack.umd-es2015.min.js",
-  "jsnext:main": "index.js",
+  "main": "dist/@redsift/d3-rs-circlepack.cjs.js",
+  "unpkg": "dist/@redsift/d3-rs-circlepack.min.js",
+  "jsdelivr": "dist/@redsift/d3-rs-circlepack.min.js",
+  "module": "index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/redsift/d3-rs-circlepack.git"
   },
   "scripts": {
-    "serve": "gulp -o d3-rs-circlepack -g d3-selection serve",
-    "build": "gulp -o d3-rs-circlepack -g d3-selection build",
-    "pretest": "npm outdated || true && npm run build",
-    "test": "tape 'test/**/*-test.js'",
-    "posttest": "eslint index.js src",
-    "prepublish": "npm run build"
+    "clean": "rm -rf dist",
+    "pretest": "npm run clean && mkdir dist && json2module package.json > dist/package.js && npm run build",
+    "test": "npm outdated || true && eslint src test index.js && tape 'test/**/*-test.js'",
+    "build": "npm run umd && node rollup.node",
+    "umd": "rollup -c",
+    "serve": "npm run umd && npm-run-all --parallel watch browse",
+    "watch": "onchange src index.js -- npm run umd",
+    "browse": "browser-sync start --server --directory --files \"examples/**/*.html, dist/**/*.js\" --no-notify"
   },
   "dependencies": {
     "@redsift/d3-rs-svg": "^0.6.0",
     "@redsift/d3-rs-theme": "^0.4.2",
     "@redsift/d3-rs-tip": "^0.9.0",
-    "d3-hierarchy": "^1.1.6",
-    "d3-scale": "^2.1.0",
-    "d3-selection": "^1.3.0"
+    "d3-hierarchy": "^1.1.8",
+    "d3-scale": "^2.1.2",
+    "d3-selection": "^1.3.2",
+    "@d3fc/d3fc-label-layout": "^6.0.6"
   },
   "devDependencies": {
     "@redsift/tape-reel": "~0.1.0",
-    "browser-sync": "^2.14.0",
-    "del": "^2.2.2",
-    "eslint": "^3.3.1",
-    "gulp": "^3.9.1",
-    "gulp-rename": "^1.2.2",
-    "gulp-sourcemaps": "^2.0.0-alpha",
-    "gulp-uglify": "^2.0.0",
-    "gulp-util": "^3.0.7",
-    "rollup": "^0.34.10",
-    "rollup-plugin-node-resolve": "^2.0.0",
-    "rollup-plugin-commonjs": "^3.3.0",
-    "rollup-plugin-buble": "^0.13.0",
-    "rollup-plugin-json": "^2.0.0",
-    "rollup-stream": "^1.11.0",
-    "vinyl-buffer": "^1.0.0",
-    "vinyl-source-stream": "^1.1.0",
-    "yargs": "^5.0.0"
+    "browser-sync": "^2.24.7",
+    "eslint": "^5.4.0",
+    "json2module": "*",
+    "npm-run-all": "^4.1.3",
+    "onchange": "^4.1.0",
+    "rollup": "0.65",
+    "rollup-plugin-commonjs": "^9.1.6",
+    "rollup-plugin-json": "^3.0.0",
+    "rollup-plugin-node-resolve": "^3.3.0",
+    "rollup-plugin-terser": "1"
   }
 }
