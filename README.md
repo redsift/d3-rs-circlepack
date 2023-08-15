@@ -10,14 +10,6 @@
 
 [View @redsift/d3-rs-√ on Codepen](http://codepen.io/collection/DgkEpa/)
 
-### Line chart
-
-![Sample bars with a bottom orientation](https://bricks.redsift.cloud/reusable/d3-rs-circlepack.svg?_datum=[1,200,3100,1000]&orientation=bottom)
-
-### Multiple series
-
-![Sample bars with a left orientation](https://bricks.redsift.cloud/reusable/d3-rs-circlepack.svg?_datum=[[1,2,4],[0,1]])
-
 ## Usage
 
 ### Browser
@@ -39,8 +31,3 @@
     var chart = require("@redsift/d3-rs-circlepack");
     var eml = chart.html();
     ...
-
-## TODO
-- text outline for other themes
-- text label fn callback
-- text fill fn callback
