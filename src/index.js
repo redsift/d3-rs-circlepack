@@ -1,16 +1,16 @@
 export {
   version
-} from './dist/package.js';
+} from '../package.json';
 
 
 export {
   default as html
-} from './src/circlepack';
+} from './circlepack.js';
 
 
 export {
   default as text
-} from './src/text';
+} from './text.js';
 
 
 /**
@@ -18,12 +18,12 @@ export {
 */
 export {
   default as layoutRemoveOverlaps
-} from './src/label-layout/custom-remove-layout.js';
+} from './label-layout/custom-remove-layout.js';
 
 export {
   default as labelPlacementStrategies
-} from './src/label-layout/label-placement-strategies.js';
+} from './label-layout/label-placement-strategies.js';
 
 export {
   default as labelRemovalStrategies
-} from './src/label-layout/label-removal-strategies.js';
+} from './label-layout/label-removal-strategies.js';
